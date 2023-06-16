@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util
+       https://www.springframework.org/schema/util/spring-util.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+
+    <!-- 引入外部属性文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+    </bean>
+
+
+
+
+    <!--
+        配置HelloWorld所对应的bean，即将HelloWorld的对象交给Spring的IOC容器管理
+        通过bean标签配置IOC容器所管理的bean
+        属性：
+        id：设置bean的唯一标识
+        class：设置bean所对应类型的全类名
+    -->
+    <bean id="helloWord" class="com.atguigu.spring.demo.HelloWord"></bean>
+    <bean id="clazzOne" class="com.atguigu.spring.pojo.Clazz">
+        <property name="clazzId" value="001"></property>
+        <property name="clazzName" value="科技班"></property>
+    </bean>
+
+    <!-- 依赖注入之setter注入 -->
+    <bean id="studentOne" class="com.atguigu.spring.pojo.Student">
+        <!-- property标签：通过组件类的setXxx()方法给组件对象设置属性 -->
+        <!-- name属性：指定属性名（这个属性名是getXxx()、setXxx()方法定义的，和成员变量无关）-->
+        <!-- value属性：指定属性值 -->
+        <property name="name" value="Tom"></property>
+        <property name="id" value="1001"></property>
+        <property name="age" value="12"></property>
+        <property name="sex" value="1"></property>
+    </bean>
+
+
+    <!--依赖注入之构造器注入-->
+    <bean id="studentTwo" class="com.atguigu.spring.pojo.Student">
+        <constructor-arg name="id" value="1002"></constructor-arg>
+        <constructor-arg name="name" value="Lili"></constructor-arg>
+        <constructor-arg name="age" value="14"></constructor-arg>
+        <constructor-arg name="sex" value="0"></constructor-arg>
+    </bean>
+
+
+    <!--为类类型的属性赋值-引用外部bean-->
+    <bean id="studentThree" class="com.atguigu.spring.pojo.Student">
+        <!-- property标签：通过组件类的setXxx()方法给组件对象设置属性 -->
+        <!-- name属性：指定属性名（这个属性名是getXxx()、setXxx()方法定义的，和成员变量无关）-->
+        <!-- value属性：指定属性值 -->
+        <property name="name" value="Tom"></property>
+        <property name="id" value="1001"></property>
+        <property name="age" value="12"></property>
+        <property name="sex" value="1"></property>
+        <property name="clazz" ref="clazzOne"></property>
+    </bean>
+    <!--为类类型的属性赋值-内部bean-->
+    <bean id="studentFour5" class="com.atguigu.spring.pojo.Student">
+        <property name="id" value="1004"></property>
+        <property name="name" value="赵六"></property>
+        <property name="age" value="26"></property>
+        <property name="sex" value="女"></property>
+        <property name="clazz">
+            <!-- 在一个bean中再声明一个bean就是内部bean -->
+            <!-- 内部bean只能用于给属性赋值，不能在外部通过IOC容器获取，因此可以省略id属性 -->
+            <bean id="clazzInner" class="com.atguigu.spring.pojo.Clazz">
+                <property name="clazzId" value="2222"></property>
+                <property name="clazzName" value="远大前程班"></property>
+            </bean>
+        </property>
+    </bean>
+    <!--为类类型的属性赋值-级联属性赋值-->
+    <bean id="studentFour1" class="com.atguigu.spring.pojo.Student">
+        <property name="id" value="1004"></property>
+        <property name="name" value="赵六"></property>
+        <property name="age" value="26"></property>
+        <property name="sex" value="女"></property>
+        <!-- 一定先引用某个bean为属性赋值，才可以使用级联方式更新属性 -->
+        <property name="clazz" ref="clazzOne"></property>
+        <property name="clazz.clazzId" value="3333"></property>
+        <property name="clazz.clazzName" value="最强王者班"></property>
+    </bean>
+
+
+    <!--为数组类型属性赋值-->
+    <bean id="studentFour2" class="com.atguigu.spring.pojo.Student">
+        <property name="id" value="1004"></property>
+        <property name="name" value="赵六"></property>
+        <property name="age" value="26"></property>
+        <property name="sex" value="女"></property>
+        <!-- ref属性：引用IOC容器中某个bean的id，将所对应的bean为属性赋值 -->
+        <property name="clazz" ref="clazzOne"></property>
+        <property name="hobbies">
+            <array>
+                <value>抽烟</value>
+                <value>喝酒</value>
+                <value>烫头</value>
+            </array>
+        </property>
+    </bean>
+
+
+    <!--为集合类型属性赋值-->
+    <!--若为Set集合类型属性赋值，只需要将其中的list标签改为set标签即可-->
+    <bean id="clazzTwo" class="com.atguigu.spring.pojo.Clazz">
+        <property name="clazzId" value="4444"></property>
+        <property name="clazzName" value="Javaee0222"></property>
+        <property name="students">
+            <list>
+                <ref bean="studentOne"></ref>
+                <ref bean="studentTwo"></ref>
+                <ref bean="studentThree"></ref>
+            </list>
+        </property>
+    </bean>
+    <!--为Map集合类型属性赋值-->
+    <bean id="teacherOne" class="com.atguigu.spring.pojo.Teacher">
+        <property name="teacherId" value="10010"></property>
+        <property name="teacherName" value="大宝"></property>
+    </bean>
+    <bean id="teacherTwo" class="com.atguigu.spring.pojo.Teacher">
+        <property name="teacherId" value="10086"></property>
+        <property name="teacherName" value="二宝"></property>
+    </bean>
+    <bean id="studentFour" class="com.atguigu.spring.pojo.Student">
+        <property name="id" value="1004"></property>
+        <property name="name" value="赵六"></property>
+        <property name="age" value="26"></property>
+        <property name="sex" value="女"></property>
+        <!-- ref属性：引用IOC容器中某个bean的id，将所对应的bean为属性赋值 -->
+        <property name="clazz" ref="clazzOne"></property>
+        <property name="hobbies">
+            <array>
+                <value>抽烟</value>
+                <value>喝酒</value>
+                <value>烫头</value>
+            </array>
+        </property>
+        <property name="teacherMap">
+            <map>
+                <entry>
+                    <key>
+                        <value>10010</value>
+                    </key>
+                    <ref bean="teacherOne"></ref>
+                </entry>
+                <entry>
+                    <key>
+                        <value>10086</value>
+                    </key>
+                    <ref bean="teacherTwo"></ref>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <!--引用集合类型的bean-->
+    <!--list集合类型的bean-->
+    <util:list id="students">
+        <ref bean="studentOne"></ref>
+        <ref bean="studentTwo"></ref>
+        <ref bean="studentThree"></ref>
+    </util:list>
+    <!--map集合类型的bean-->
+    <util:map id="teacherMap">
+        <entry>
+            <key>
+                <value>10010</value>
+            </key>
+            <ref bean="teacherOne"></ref>
+        </entry>
+        <entry>
+            <key>
+                <value>10086</value>
+            </key>
+            <ref bean="teacherTwo"></ref>
+        </entry>
+    </util:map>
+    <bean id="clazzTwo2" class="com.atguigu.spring.pojo.Clazz">
+        <property name="clazzId" value="4444"></property>
+        <property name="clazzName" value="Javaee0222"></property>
+        <property name="students" ref="students"></property>
+    </bean>
+    <bean id="studentFour3" class="com.atguigu.spring.pojo.Student">
+        <property name="id" value="1004"></property>
+        <property name="name" value="赵六"></property>
+        <property name="age" value="26"></property>
+        <property name="sex" value="女"></property>
+        <!-- ref属性：引用IOC容器中某个bean的id，将所对应的bean为属性赋值 -->
+        <property name="clazz" ref="clazzOne"></property>
+        <property name="hobbies">
+            <array>
+                <value>抽烟</value>
+                <value>喝酒</value>
+                <value>烫头</value>
+            </array>
+        </property>
+        <property name="teacherMap" ref="teacherMap"></property>
+    </bean>
+
+
+    <bean id="studentSix" class="com.atguigu.spring.pojo.Student"
+          p:id="1006" p:name="小明" p:clazz-ref="clazzOne" p:teacherMap-ref="teacherMap">
+
+    </bean>
+
+
+
+
+
+    <!-- scope属性：取值singleton（默认值），bean在IOC容器中只有一个实例，IOC容器初始化时创建对象 -->
+    <!-- scope属性：取值prototype，bean在IOC容器中可以有多个实例，getBean()时创建对象 -->
+    <bean class="com.atguigu.spring.pojo.User" scope="prototype"></bean>
+
+
+
+    <!-- 使用init-method属性指定初始化方法 -->
+    <!-- 使用destroy-method属性指定销毁方法 -->
+    <bean id="user" class="com.atguigu.spring.pojo.User" scope="prototype" init-method="initMethod"
+          destroy-method="destroyMethod">
+        <property name="id" value="1001"></property>
+        <property name="username" value="admin"></property>
+        <property name="password" value="123456"></property>
+        <property name="age" value="23"></property>
+    </bean>
+
+<!--
+    <bean id="beanProcessor" class="com.atguigu.spring.pojo.MyBeanProcessor"></bean>
+-->
+
+    <bean id="userFactoryBean" class="com.atguigu.spring.pojo.UserFactoryBean"></bean>
+
+
+    <bean id="userController" class="com.atguigu.spring.controller.UserController" autowire="byType"></bean>
+    <bean id="userService" class="com.atguigu.spring.service.impl.UserServiceImpl" autowire="byType"></bean>
+    <bean id="userDo" class="com.atguigu.spring.dao.impl.UserDaoImpl" autowire="byType"></bean>
+</beans>
